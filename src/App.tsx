@@ -1,22 +1,29 @@
 import { useEffect, useState } from 'react';
-import { Container, Typography, Paper, Box } from '@mui/material';
+import { Container, Typography, Paper, Box, Chip } from '@mui/material';
 import { elevatorService } from './services/elevatorService';
-import type { BuildingConfig, ElevatorState } from './types/elevator';
+import { useElevatorSSE } from './hooks/useElevatorSSE';
+import type { BuildingConfig } from './types/elevator';
 
 function App() {
     const [config, setConfig] = useState<BuildingConfig | null>(null);
-    const [elevators, setElevators] = useState<ElevatorState[]>([]);
+    const { elevators, connected } = useElevatorSSE();
 
     useEffect(() => {
         elevatorService.getBuildingConfig().then(setConfig);
-        elevatorService.getAllElevators().then(setElevators);
     }, []);
 
     return (
         <Container maxWidth="md" sx={{ mt: 4 }}>
-            <Typography variant="h4" gutterBottom>
-                Elevator System Simulation
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                <Typography variant="h4">
+                    Elevator System Simulation
+                </Typography>
+                <Chip
+                    label={connected ? 'Live' : 'Disconnected'}
+                    color={connected ? 'success' : 'error'}
+                    size="small"
+                />
+            </Box>
 
             {config && (
                 <Paper sx={{ p: 2, mb: 2 }}>
@@ -32,6 +39,7 @@ function App() {
                         <Typography>Floor: {elevator.currentFloor}</Typography>
                         <Typography>Direction: {elevator.direction}</Typography>
                         <Typography>Doors: {elevator.doorStatus}</Typography>
+                        <Typography>Targets: {elevator.targetFloors.join(', ') || 'none'}</Typography>
                     </Paper>
                 ))}
             </Box>
