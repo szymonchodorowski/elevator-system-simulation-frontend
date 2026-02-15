@@ -11,10 +11,13 @@ export function useElevatorSSE() {
         const eventSource = new EventSource('/api/v1/elevators/stream');
         eventSourceRef.current = eventSource;
 
+        eventSource.onopen = () => {
+            setConnected(true);
+        };
+
         eventSource.addEventListener('elevator-update', (event) => {
             const data: ElevatorState[] = JSON.parse(event.data);
             setElevators(data);
-            setConnected(true);
         });
 
         eventSource.onerror = () => {
@@ -29,7 +32,7 @@ export function useElevatorSSE() {
     }, []);
 
     const startPollingFallback = () => {
-        const interval = setInterval(async () => {
+        setInterval(async () => {
             try {
                 const data = await elevatorService.getAllElevators();
                 setElevators(data);
@@ -38,8 +41,6 @@ export function useElevatorSSE() {
                 setConnected(false);
             }
         }, 2000);
-
-        return () => clearInterval(interval);
     };
 
     return { elevators, connected };

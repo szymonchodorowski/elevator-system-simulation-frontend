@@ -9,6 +9,11 @@ export default defineConfig({
             '/api': {
                 target: 'http://localhost:8099',
                 changeOrigin: true,
+                configure: (proxy) => {
+                    proxy.on('proxyReq', (proxyReq) => {
+                        proxyReq.setHeader('Connection', 'keep-alive');
+                    });
+                },
             },
         },
     },

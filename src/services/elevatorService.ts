@@ -15,4 +15,13 @@ export const elevatorService = {
         const { data } = await api.get<ElevatorState[]>('/elevators');
         return data;
     },
+
+    callElevator: async (floor: number, direction: 'UP' | 'DOWN'): Promise<number> => {
+        const { data } = await api.post<number>('/elevators/call', { floor, direction });
+        return data;
+    },
+
+    selectFloor: async (elevatorId: number, targetFloor: number): Promise<void> => {
+        await api.post(`/elevators/${elevatorId}/floor`, { targetFloor });
+    },
 };
